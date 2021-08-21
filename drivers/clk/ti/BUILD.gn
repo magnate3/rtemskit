@@ -14,7 +14,7 @@ component("ti") {
     "omap4-cm.c",
 #    "clk-sci.c"
   ]
-  configs = ["//drivers:dm_of_configs"]
+  configs = ["//drivers:dm_configs"]
 }
 
 

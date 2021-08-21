@@ -345,9 +345,11 @@ static void dm_devices_probe(struct udevice *dev)
 
 static void dm_root_init(void)
 {
+	printk("dm initialize start...\n");
 	int ret = dm_init_and_scan(false);
 	if (ret)
 		rtems_panic("DM initialize failed: %d\n", ret);
+	printk("dm initialize end...\n");
 }
 
 static int device_drivers_init(void)

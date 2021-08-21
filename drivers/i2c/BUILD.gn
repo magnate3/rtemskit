@@ -14,7 +14,7 @@ component("i2c") {
   ]
   
   sources += ["i2c-omap.c"]
-  configs = ["//drivers:dm_of_configs"]
+  configs = ["//drivers:dm_configs"]
 }
 
 

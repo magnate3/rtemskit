@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
@@ -18,9 +19,6 @@
 
 static int shell_dm(int argc, char *argv[])
 {
-    if (argc == 1) {
-        return -EINVAL;
-    }
     if (argc == 2) {
         if (!strcmp(argv[1], "--all") ||
             !strcmp(argv[1], "-a")) {
@@ -37,10 +35,15 @@ static int shell_dm(int argc, char *argv[])
         } else if (!strcmp(argv[1], "--driver-compat") ||
             !strcmp(argv[1], "-dc")) {
             dm_dump_driver_compat();
-        } else
-            return -EINVAL;
+        } else {
+            goto _err;
+        }
+        return 0;
     }        
-    return 0;
+    
+_err:
+    puts(DM_HELP);
+    return -EINVAL;
 }
 
 static rtems_shell_cmd_t shell_dm_command = {

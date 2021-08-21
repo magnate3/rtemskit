@@ -10,7 +10,7 @@ component("pinctrl") {
     "pinctrl-generic.c",
     "pinctrl-single.c"
   ]
-  configs = ["//drivers:dm_of_configs"]
+  configs = ["//drivers:dm_configs"]
 }
 
 

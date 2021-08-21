@@ -9,7 +9,7 @@ component("spi") {
     "spi-uclass.c",
     "spi-mem.c",
   ]
-  configs = ["//drivers:dm_of_configs"]
+  configs = ["//drivers:dm_configs"]
 }
 
 

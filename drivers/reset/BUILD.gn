@@ -9,7 +9,7 @@ component("reset") {
     "reset-uclass.c",
     "reset-syscon.c"
   ]
-  configs = ["//drivers:dm_of_configs"]
+  configs = ["//drivers:dm_configs"]
 }
 
 

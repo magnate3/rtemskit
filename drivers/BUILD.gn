@@ -40,10 +40,10 @@ component("drivers") {
     "//drivers/spi",
     "//drivers/reset",
   ]
-  configs = [":dm_of_configs"]
+  configs = [":dm_configs"]
 }
 
-config("dm_of_configs") {
+config("dm_configs") {
   configs = ["//arch:arch_configs"]
   defines = [
     "CONFIG_OF_LIBFDT=1",

@@ -18,15 +18,23 @@
 
 #include "base/modinit.h"
 
+#define ROOTFS_DIR "root"
 #define MEDIA_MOUNTED_EVENT RTEMS_EVENT_10
 
 
 #if defined(CONFIGURE_MEDIA_SERVICE)
+struct dirlink {
+    const char *target;
+    const char *linkname;
+};
 
-static rtems_status_code 
-media_listener(rtems_media_event event, rtems_media_state state, 
-    const char *src, const char *dest, void *arg)
-{
+static const struct dirlink link_table[] = {
+    {ROOTFS_DIR"/etc", "/etc"},
+    {ROOTFS_DIR"/lib", "/lib"},
+};
+
+static rtems_status_code  media_listener(rtems_media_event event, 
+    rtems_media_state state, const char *src, const char *dest, void *arg) {
     if (event == RTEMS_MEDIA_EVENT_MOUNT &&
         state == RTEMS_MEDIA_STATE_SUCCESS) {
         rtems_id waiter = *(rtems_id *)arg;
@@ -39,31 +47,31 @@ media_listener(rtems_media_event event, rtems_media_state state,
             printf("***Warning: remove /etc failed: %d\n", ret);
             return RTEMS_INCORRECT_STATE;
         }
-        memset(linkname, 0, sizeof(linkname));
-        strcpy(linkname, dest);
-        strcat(linkname, "/root/etc");
-        printf("Linking...\n");
-        ret = symlink(linkname, "/etc");
-        if (ret) {
-            printf("***Waring: create link failed(%s -> /etc) with %d\n", linkname, ret);
-            return RTEMS_INCORRECT_STATE;
+
+        for (int i = 0; i < RTEMS_ARRAY_SIZE(link_table); i++) {
+            snprintf(linkname, sizeof(linkname), "%s/%s", 
+                dest, link_table[i].target);
+            printf("symlink: %s -> %s\n", link_table[i].linkname, linkname);
+            ret = symlink(linkname, link_table[i].linkname);
+            if (ret) {
+                printf("***Waring: create link failed(%s -> %s) with %d\n", 
+                    link_table[i].target, link_table[i].linkname, ret);
+            }
         }
         rtems_event_send(waiter, MEDIA_MOUNTED_EVENT);
     }
     return RTEMS_SUCCESSFUL;
 }
 
-static int media_service_init(void)
-{
+static int media_service_init(void) {
     rtems_status_code sc;
-
     sc = rtems_media_initialize();
     if (sc) {
         printf("***Error: Media initialize failed: %s\n",
             rtems_status_text(sc));
         return rtems_status_code_to_errno(sc);
     }
-    sc = rtems_media_server_initialize(110, 4096,
+    sc = rtems_media_server_initialize(110, 8192,
         RTEMS_DEFAULT_MODES, RTEMS_DEFAULT_ATTRIBUTES);
     if (sc) {
         printf("***Error: Media service start failed: %s\n", 
@@ -78,13 +86,11 @@ static int media_service_init(void)
  * RTEMS application entry.
  * @arg: user argument
  */
-rtems_task Init(rtems_task_argument arg)
-{
+rtems_task Init(rtems_task_argument arg) {
 #if defined(CONFIGURE_MEDIA_SERVICE)
     rtems_id thread = rtems_task_self();
 #endif
     rtems_status_code sc;
-
     _module_driver_init();
 #if defined(CONFIGURE_MEDIA_SERVICE)
     if (media_service_init()) 
@@ -110,11 +116,10 @@ rtems_task Init(rtems_task_argument arg)
             &evt);
         (void) evt;  
 #else
-    rtems_task_wake_after(RTEMS_MILLISECONDS_TO_TICKS(1000));
+        rtems_task_wake_after(RTEMS_MILLISECONDS_TO_TICKS(1000));
 #endif
-        printf("Run RC configure script...\n");
-        rtems_bsd_run_etc_rc_conf(
-            RTEMS_MILLISECONDS_TO_TICKS(10000), true);
+        /* Execute /etc/rc.conf script */
+        rtems_bsd_run_etc_rc_conf(RTEMS_MILLISECONDS_TO_TICKS(10000), true);
     }
 
 #elif defined(CONFIG_NET)

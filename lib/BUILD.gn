@@ -43,7 +43,7 @@ component("drivers_dep") {
     "fdtdec.c",
     "of_live.c",
   ]
-  configs = ["//drivers:dm_of_configs"]
+  configs = ["//drivers:dm_configs"]
 }
 
 #========================

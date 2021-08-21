@@ -23,7 +23,7 @@ component("clk") {
   } else if (target_soc == "am43xx") {
     deps += ["ti"]
   }
-  configs = ["//drivers:dm_of_configs"]
+  configs = ["//drivers:dm_configs"]
 }
 
 

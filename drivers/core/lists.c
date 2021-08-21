@@ -20,10 +20,12 @@
 #include <fdtdec.h>
 #include <linux/compiler.h>
 
+
+#pragma GCC optimize(1) //TODO: remove it later
+
 struct driver *lists_driver_lookup_name(const char *name)
 {
-	struct driver *drv =
-		ll_entry_start(struct driver, driver);
+	struct driver *drv = ll_entry_start(struct driver, driver);
 	const int n_ents = ll_entry_count(struct driver, driver);
 	struct driver *entry;
 
