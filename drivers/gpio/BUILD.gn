@@ -1,0 +1,19 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+#==============
+# GPIO Driver
+#==============
+component("gpio") {
+  sources = ["gpio-uclass.c"]
+
+  if (target_soc == "xilinx-zynq") {
+    sources += ["zynq_gpio.c"]
+  } else if (target_soc == "am43xx") {
+    sources += ["omap_gpio.c"]
+  }
+  configs = ["//drivers:dm_of_configs"]
+}
+
+
+

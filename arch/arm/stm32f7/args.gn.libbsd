@@ -1,0 +1,34 @@
+# Set build arguments here. See `gn help buildargs`.
+target_os = "rtems"
+target_cpu = "arm"
+rtems_bsp = "stm32f7"
+rtems_tools = "/home/wt/development/rtems"
+rtems_version = 6
+
+max_cpus = 1
+sched_priority = true
+#sched_custom_smp = true
+use_shell = false
+use_net = true
+use_telnet = true
+use_ftp = true
+
+#====================
+# Block device cache
+#====================
+use_bdbuf = true
+
+#1MB
+bdbuf_cache_size = 1048576 
+bdbuf_max_blksize = 4096
+bdbuf_max_read_ahead_blks = 0
+bdbuf_max_write_blks = 16
+bdbuf_min_blksize = 512
+bdbuf_read_ahead_task_priority = 110
+bdbuf_swapout_block_hold = 5000
+bdbuf_swapout_period = 5000
+bdbuf_swapout_task_priority = 110
+bdbuf_swapout_worker_task_priority = 0
+bdbuf_swapout_worker_tasks = 0
+bdbuf_task_stack_size = 4096
+

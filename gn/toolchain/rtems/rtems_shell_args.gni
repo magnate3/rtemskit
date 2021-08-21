@@ -1,0 +1,90 @@
+# Shell commands
+declare_args() {
+  shell_cmdls = false
+  shell_cmdchown = false
+  shell_cmdchmod = false
+  shell_logoff = false
+  shell_setenv = false
+  shell_getenv = false
+  shell_unsetenv = false
+
+  shell_mdump = false
+  shell_wdump = false
+  shell_ldump = false
+  shell_medit = false
+  shell_mfill = false
+  shell_mmove = false
+  shell_joel = false
+  shell_date = false
+  shell_echo = false
+  shell_edit = false
+  shell_sleep = true
+  shell_id = false
+  shell_tty = false
+  shell_whoami = false
+
+  shell_cd = true
+  shell_dir = false
+  shell_cp = true
+  shell_pwd = true
+  shell_ls = true
+  shell_chmod = false
+  shell_chdir = true
+  shell_mkdir = true
+  shell_rmdir = true
+  shell_chroot = true
+  shell_chmod_= true
+  shell_cat = false
+  shell_mkrfs = false
+  shell_msdosfmt = false
+  shell_mv = false
+  shell_rm = false
+  shell_ln = false
+  shell_mknod = false
+  shell_umask = false
+  shell_lsof = false
+  shell_mount = false
+  shell_unmount = false
+  shell_blksync = false
+  shell_blkstats = false
+  shell_fdisk = false
+  shell_dd = false
+  shell_hexdump = false
+  shell_debugrfs = false
+  shell_df = false
+  shell_md5 = false
+
+  shell_rtc = false
+  shell_spi = false
+  shell_i2cdetect = false
+  shell_i2cget = false
+  shell_i2cset = false
+
+  shell_shutdown = false
+  shell_cpuinfo = true
+  shell_cpuuse = true
+  shell_top = true
+  shell_stackuse = true
+  shell_perioduse = true
+  shell_profreport = false
+  shell_wkspace_info = true
+  shell_malloc_info = true
+  shell_rtrace = false
+  shell_irq = false
+
+  #Profiling Report
+  shell_profreport = false
+  
+  #User custom command
+  shell_clear = false
+  shell_xmodem = false
+  shell_reboot = false
+
+  use_shell_script = false
+}
+
+if (use_shell_script) {
+  declare_args() {
+    script_content = ""
+  }
+}

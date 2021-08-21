@@ -1,0 +1,17 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+arch: arm
+bsp: apollo3p
+build-type: bsp
+cflags: []
+copyrights:
+- Copyright (C) 2021 embedded brains GmbH (http://www.embedded-brains.de)
+cppflags: []
+enabled-by: true
+family: apollo3p
+includes: []
+install: []
+links:
+- role: build-dependency
+  uid: grp
+source: []
+type: build

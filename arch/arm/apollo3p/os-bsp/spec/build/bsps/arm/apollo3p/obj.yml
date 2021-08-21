@@ -1,0 +1,43 @@
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+build-type: objects
+cflags: []
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH (http://www.embedded-brains.de)
+cppflags: []
+cxxflags: []
+enabled-by: true
+includes: []
+install:
+- destination: ${BSP_INCLUDEDIR}
+  source:
+  - bsps/arm/apollo3p/include/bsp.h
+- destination: ${BSP_INCLUDEDIR}/bsp
+  source:
+  - bsps/arm/apollo3p/include/bsp/irq.h
+- destination: ${BSP_LIBDIR}
+  source:
+  - bsps/arm/apollo3p/start/bsp_specs
+ldflags: []
+links: []
+source:
+- bsps/shared/dev/serial/console-termios.c
+- bsps/shared/cache/nocache.c
+#- bsps/arm/shared/cache/cache-v7m.c
+- bsps/arm/shared/clock/clock-armv7m.c
+- bsps/arm/shared/cpucounter/cpucounter-armv7m.c
+- bsps/arm/shared/irq/irq-armv7m.c
+- bsps/arm/shared/irq/irq-dispatch-armv7m.c
+- bsps/arm/shared/start/bsp-start-memcpy.S
+- bsps/arm/shared/start/bspreset-armv7m.c
+- bsps/arm/apollo3p/start/bspstart.c
+- bsps/arm/apollo3p/start/bspstarthook.c
+- bsps/arm/apollo3p/start/bspreset.c
+- bsps/shared/irq/irq-default-handler.c
+- bsps/shared/start/bspfatal-default.c
+- bsps/shared/start/bspgetworkarea-default.c
+- bsps/shared/start/gettargethash-default.c
+- bsps/shared/start/sbrk.c
+- bsps/shared/start/stackalloc.c
+- bsps/shared/dev/getentropy/getentropy-cpucounter.c
+
+type: build

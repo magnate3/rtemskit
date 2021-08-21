@@ -1,0 +1,7 @@
+
+declare_args() {
+  sched_priority = false
+  sched_simple = false
+  sched_cbs = false
+  sched_edf = false
+}

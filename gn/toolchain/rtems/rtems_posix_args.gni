@@ -1,0 +1,10 @@
+#RTEMS Posix
+declare_args() {
+  max_posix_key_value_pairs = 0
+  max_posix_message_queues = 0
+  max_posix_queue_signals = 0
+  max_posix_semaphores = 0
+  max_posix_shms = 0
+  max_posix_threads = 0
+  max_posix_timers = 0
+}

@@ -1,0 +1,9 @@
+# SMP scheduler
+declare_args() {
+  sched_edf_smp = false
+  sched_priority_smp = false
+  sched_prority_affinity_smp = false
+  sched_simple_smp = false
+  sched_strong_apa_smp = false
+  sched_custom_smp = false
+}

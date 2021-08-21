@@ -1,0 +1,44 @@
+canopen_common_configure_flags = [
+    "CONFIG_CAN_MAX_FILTER=10"
+]
+
+static_library("canopen") {
+    sources = [
+        "src/CANopen.c",
+        "src/301/CO_Emergency.c",
+        "src/301/CO_fifo.c",
+        "src/301/CO_HBconsumer.c",
+        "src/301/CO_NMT_Heartbeat.c",
+        "src/301/CO_ODinterface.c",
+        "src/301/CO_PDO.c",
+        "src/301/CO_SDOclient.c",
+        "src/301/CO_SDOserver.c",
+        "src/301/CO_SYNC.c",
+        "src/301/CO_TIME.c",
+        "src/301/crc16-ccitt.c",
+        "src/303/CO_LEDs.c",
+        "src/304/CO_GFC.c",
+        "src/304/CO_SRDO.c",
+        "src/305/CO_LSSmaster.c",
+        "src/305/CO_LSSslave.c",
+        "src/309/CO_gateway_ascii.c",
+        "src/extra/CO_trace.c",
+    ]
+    include_dirs = ["."]
+    public_deps = [
+        ":driver"
+    ]
+}
+
+source_set("driver") {
+    sources = [
+        "CO_driver.c",
+    ]
+    include_dirs = ["."]
+    public_configs = [":include_path"]
+    defines = canopen_common_configure_flags
+}
+
+config("include_path") {
+    include_dirs = ["src/"]
+}

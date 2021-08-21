@@ -1,0 +1,9 @@
+# Board configuration options
+
+if BOARD_STM32F7
+
+config SOC_SERIES_STM32F7X
+  bool
+  
+  
+endif

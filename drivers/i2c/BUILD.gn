@@ -1,0 +1,21 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+#================
+# I2C bus driver
+#================
+component("i2c") {
+  sources = [
+    "i2c-uclass.c",
+    "i2c-gpio.c",
+    "muxes/i2c-mux-uclass.c",
+    "muxes/i2c-mux-gpio.c",
+    "muxes/pca954x.c"
+  ]
+  
+  sources += ["i2c-omap.c"]
+  configs = ["//drivers:dm_of_configs"]
+}
+
+
+

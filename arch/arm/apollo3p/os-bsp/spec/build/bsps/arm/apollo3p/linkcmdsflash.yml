@@ -1,0 +1,43 @@
+build-type: script
+do-build: |
+  bld.install_as("${BSP_LIBDIR}/linkcmds.flash", "linkcmds.flash")
+do-configure: |
+  content = """INCLUDE linkcmds.memory
+
+  REGION_ALIAS ("REGION_START", FLASH);
+  REGION_ALIAS ("REGION_VECTOR", SRAM);
+  REGION_ALIAS ("REGION_TEXT", FLASH);
+  REGION_ALIAS ("REGION_TEXT_LOAD", FLASH);
+  REGION_ALIAS ("REGION_RODATA", FLASH);
+  REGION_ALIAS ("REGION_RODATA_LOAD", FLASH);
+  REGION_ALIAS ("REGION_DATA", SRAM);
+  REGION_ALIAS ("REGION_DATA_LOAD", FLASH);
+  REGION_ALIAS ("REGION_FAST_TEXT", FLASH);
+  REGION_ALIAS ("REGION_FAST_TEXT_LOAD", FLASH);
+  REGION_ALIAS ("REGION_FAST_DATA", DTCM);
+  REGION_ALIAS ("REGION_FAST_DATA_LOAD", FLASH);
+  REGION_ALIAS ("REGION_BSS", SRAM);
+  REGION_ALIAS ("REGION_WORK", SRAM);
+  REGION_ALIAS ("REGION_STACK", DTCM);
+  REGION_ALIAS ("REGION_NOCACHE", SRAM);
+  REGION_ALIAS ("REGION_NOCACHE_LOAD", SRAM);
+
+  """
+
+  content += """
+  INCLUDE linkcmds.armv7m
+  """
+  f = conf.bldnode.make_node(
+      conf.env.VARIANT + "/linkcmds.flash"
+  )
+  f.parent.mkdir()
+  f.write(content)
+  conf.env.append_value("cfg_files", f.abspath())
+enabled-by: true
+links: []
+prepare-build: null
+prepare-configure: null
+type: build
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH (http://www.embedded-brains.de)

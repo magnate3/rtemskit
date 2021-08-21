@@ -1,0 +1,19 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+#==============
+# Serial Driver
+#==============
+component("serial") {
+  sources = ["serial-uclass.c"]
+  if (target_soc == "am43xx") {
+    sources += ["serial-ns16550.c"]
+  } else if (target_soc == "xilinx-zynq") {
+    sources += ["serial-zynq.c"]
+  }
+
+  configs = ["//drivers:dm_of_configs"]
+}
+
+
+

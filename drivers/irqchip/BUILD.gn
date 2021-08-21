@@ -1,0 +1,15 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+#==============
+# IRQ Chip
+#==============
+component("irqchip") {
+  sources = []
+  if (target_soc == "am43xx" ||
+      target_soc == "xilinx-zynq") {
+    sources += ["arm_gic.c"]
+  }
+  configs = ["//drivers:dm_of_configs"]
+}
+

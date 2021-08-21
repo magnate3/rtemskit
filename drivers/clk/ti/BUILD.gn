@@ -1,0 +1,21 @@
+#==============
+# TI-Clock Driver
+#==============
+component("ti") {
+  include_dirs = ["."]
+  sources = [
+    "clk.c",
+    "clk-am3-dpll-x2.c",
+    "clk-am3-dpll.c",
+    "clk-ctrl.c",
+    "clk-divider.c",
+    "clk-gate.c",
+    "clk-mux.c",
+    "omap4-cm.c",
+#    "clk-sci.c"
+  ]
+  configs = ["//drivers:dm_of_configs"]
+}
+
+
+

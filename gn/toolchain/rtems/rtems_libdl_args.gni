@@ -1,0 +1,9 @@
+#Dynamic loader
+declare_args() {
+    use_rtl = false
+}
+if (use_rtl) {
+  declare_args() {
+    libdl_conf_content = "# Dynamic loader default configure file\n/lib/libdl*.a\n"
+  }
+}

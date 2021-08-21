@@ -1,0 +1,28 @@
+build-type: config-file
+content: |
+  MEMORY {
+    FLASH       : ORIGIN = 0x0000C000, LENGTH = ${APOLLO3P_MEMORY_FLASH_SIZE:#010x}
+    DTCM        : ORIGIN = 0x10000000, LENGTH = ${APOLLO3P_MEMORY_DTCM_SIZE:#010x}
+    SRAM        : ORIGIN = 0x10010000, LENGTH = ${APOLLO3P_MEMORY_SRAM_SIZE:#010x}
+  }
+
+  apollo3p_memory_flash_begin = ORIGIN(FLASH);
+  apollo3p_memory_flash_end = ORIGIN(FLASH) + LENGTH(FLASH);
+  apollo3p_memory_flash_size = LENGTH(FLASH);
+
+  apollo3p_memory_dtcm_begin = ORIGIN (DTCM);
+  apollo3p_memory_dtcm_end = ORIGIN (DTCM) + LENGTH (DTCM);
+  apollo3p_memory_dtcm_size = LENGTH (DTCM);
+
+  apollo3p_memory_sram_begin = ORIGIN (SRAM);
+  apollo3p_memory_sram_end = ORIGIN (SRAM) + LENGTH (SRAM);
+  apollo3p_memory_sram_size = LENGTH (SRAM);
+
+enabled-by: true
+install-path: ${BSP_LIBDIR}
+links: []
+target: linkcmds.memory
+type: build
+SPDX-License-Identifier: CC-BY-SA-4.0 OR BSD-2-Clause
+copyrights:
+- Copyright (C) 2020 embedded brains GmbH (http://www.embedded-brains.de)

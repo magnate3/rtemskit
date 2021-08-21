@@ -1,0 +1,4 @@
+#RTEMS base
+declare_args() {
+  wkspace_size = 0
+}

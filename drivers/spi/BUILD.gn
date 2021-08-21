@@ -1,0 +1,16 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+#==============
+# SPI-BUS Driver
+#==============
+component("spi") {
+  sources = [
+    "spi-uclass.c",
+    "spi-mem.c",
+  ]
+  configs = ["//drivers:dm_of_configs"]
+}
+
+
+

@@ -1,0 +1,9 @@
+source_set("cm_backtrace") {
+  sources = [
+    "cm_backtrace.c"
+  ]
+  include_dirs = [
+    "."
+  ] 
+}
+

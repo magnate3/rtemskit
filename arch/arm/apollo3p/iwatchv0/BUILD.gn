@@ -1,0 +1,49 @@
+import("//lib/featrues.gni")
+import("//board/board.gni")
+
+
+board_configs = [
+  "//board/common/ambiq-sdk:apollo_includes"
+]
+
+component("board") {
+  component_type = "static_library"
+  deps = []
+  sources = ["iwatchv0.c"]
+  configs = board_configs
+  public_deps = [
+    "//board/common/ambiq-sdk:apollo",
+    "//board/common/cortex-m",
+    "//board/common/cm_backtrace"
+  ]
+}
+
+component("driver") {
+  component_type = "static_library"
+  public_deps = []
+  defines = []
+  sources = [
+    "//driver/flash/apollo3p_mx25u512g.c",
+    "//driver/gpio/apollo3p_gpio.c",
+    "//driver/i2c/apollo3p_i2c.c",
+    "//driver/spi/apollo3p_mspi.c",
+    "//driver/sensor/cw6305.c"
+  ]
+  
+  deps = [":console"]
+  defines += ["CONFIG_MX25U256"]
+  if (use_gui) {
+    sources += ["//driver/display/apollo3p_rm6308.c"]
+  }
+  
+  include_dirs = ["include"]
+  configs = board_configs
+}
+
+component("console") {
+  sources = ["//driver/console/apollo3p_serial.c"]
+  include_dirs = ["include"]
+  configs = board_configs
+  defines = ["CONFIG_CONSOLE_UART=0"]
+}
+

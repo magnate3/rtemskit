@@ -1,0 +1,79 @@
+import("//gn/toolchain/rtems/rtems.gni")
+
+if (use_libbsd) {
+  declare_args() {
+    page_mbufs_size = 131072 #128KB
+
+  #Log level
+  #
+  # 1> alert
+  # 2> crit
+  # 3> debug
+  # 4> emerg
+  # 5> err
+  # 6> info
+  # 7> notice
+  # 8> warning
+    bsd_log_level = "warning"
+  }
+
+  #Termios
+  declare_args() {
+    use_bsd_termios_kq_and_poll = false
+  }
+
+  # Net service
+  declare_args() {
+
+    #FTPD
+    use_bsdnet_ftpd = false
+
+    #Telnetd
+    use_bsdnet_telnet = false
+
+    #Unix packet filter
+    use_bsdnet_pf_unix = false
+    use_bsdnet_ip4_mroute = false
+    use_bsdnet_ip6_mroute = false
+
+    #Bridging
+    use_bsdnet_if_brige = false
+
+    #Link Aggregation and Failover
+    use_bsdnet_if_lagg = false
+
+    #Virual LAN
+    use_bsdnet_if_vlan = false
+
+    #IPSec
+    use_bsdnet_ipsec = false
+
+    #Firewall PF
+    use_bsdnet_firewall_pf = false
+    use_bsdnet_firewall_pflog = false
+    use_bsdnet_firewall_pfsync = false
+  }
+
+  # Shell commands
+  declare_args() {
+    #Misc commands
+    shell_bsd_i2c = false
+    shell_bsd_nvmectrl = false
+    shell_bsd_sysctl = true
+
+    # Net commands
+    shell_bsd_hostname = true
+    shell_bsd_arp = true
+    shell_bsd_ping = true
+    shell_bsd_dhcpd = true
+    shell_bsd_ifconfig = true
+    shell_bsd_netstat = true
+    shell_bsd_vmstat = false
+    shell_bsd_openssl = false
+    shell_bsd_route = true
+    shell_bsd_tcpdump = false
+    shell_bsd_wlanstats = false
+    shell_bsd_wpa_supplicant = false
+    shell_bsd_wpa_supplicant_fork = false
+  }
+}

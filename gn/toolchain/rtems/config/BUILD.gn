@@ -1,0 +1,586 @@
+#Rtems kernal configuration
+import("//gn/toolchain/rtems/rtems_classic_args.gni")
+import("//gn/toolchain/rtems/rtems_fs_args.gni")
+import("//gn/toolchain/rtems/rtems_posix_args.gni")
+import("//gn/toolchain/rtems/rtems_shell_args.gni")
+import("//gn/toolchain/rtems/rtems_bdbuf_args.gni")
+import("//gn/toolchain/rtems/rtems_base_args.gni")
+import("//gn/toolchain/rtems/rtems_libdl_args.gni")
+import("//gn/toolchain/rtems/rtems_libbsd_args.gni")
+import("//gn/toolchain/rtems/rtems.gni")
+
+# RTEMS kernel arguments
+declare_args() {
+  #CPU scheduler
+  max_cpus = 1
+
+  #Must be one of 3, 7, 15, 31, 63, 127, and 255
+  max_priority = 127
+}
+
+#Initialize task
+declare_args() {
+  init_task_stack_size = 4096
+}
+
+#Kernel clock
+if (use_clock) {
+  declare_args() {
+    clock_us_per_tick = 10000
+    time_slice = 50
+  }
+}
+
+bdbuf_enable = use_bdbuf || use_dosfs
+if (bdbuf_enable) {
+  import("//gn/toolchain/rtems/rtems_bdbuf_args.gni")
+}
+
+assert(max_cpus > 0 && max_cpus <= 32, "Invalid maximum cpus")
+is_single_core = max_cpus == 1
+if (is_single_core) {
+  import("//gn/toolchain/rtems/rtems_scheduler_args.gni")
+} else {
+  import("//gn/toolchain/rtems/rtems_scheduler_smp_args.gni")
+}
+
+config("rtems_features") {
+  defines = [
+    "CONFIGURE_INIT",
+    "CONFIGURE_RTEMS_INIT_TASKS_TABLE",
+    "CONFIGURE_MAXIMUM_PROCESSORS=$max_cpus"
+  ]
+
+  if (wkspace_size > 0) {
+    defines += ["CONFIGURE_EXECUTIVE_RAM_SIZE=$wkspace_size"]
+  }
+  if (max_priority == 3 || max_priority == 7 ||
+    max_priority == 15 || max_priority == 31 ||
+    max_priority == 63 || max_priority == 127 ||
+    max_priority == 255 ) {
+    defines += ["CONFIGURE_MAXIMUM_PRIORITY=$max_priority"]
+  } else {
+    assert(false, "Invalid maximum priority")
+  }
+  if (init_task_stack_size > 0) {
+    defines += ["CONFIGURE_INIT_TASK_STACK_SIZE=$init_task_stack_size"]
+  }
+  if (use_console) {
+    defines += ["CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER"]
+  } else if (use_simple_console) {
+    defines += ["CONFIGURE_APPLICATION_NEEDS_SIMPLE_CONSOLE_DRIVER"]
+  }
+  if (use_clock) {
+    defines += [
+      "CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER",
+      "CONFIGURE_MICROSECONDS_PER_TICK=${clock_us_per_tick}",
+      "CONFIGURE_TICKS_PER_TIMESLICE=${time_slice}"
+    ]
+  }
+  if (use_media) {
+    defines += ["CONFIGURE_MEDIA_SERVICE"]
+  }
+}
+
+config("rtems_scheduler") {
+  defines = []
+  if (is_single_core) {
+    if (sched_priority) {
+      defines += ["CONFIGURE_SCHEDULER_PRIORITY"]
+    } else if (sched_edf) {
+      defines += ["CONFIGURE_SCHEDULER_EDF"]
+    } else if (sched_cbs) {
+      defines += ["CONFIGURE_SCHEDULER_CBS"]
+    } else if (sched_simple) {
+      defines += ["CONFIGURE_SCHEDULER_SIMPLE"]
+    } else {
+      assert(false, "Please select a valid scheduler")
+    }
+  } else {
+    if (!sched_custom_smp) {
+      if (sched_edf_smp) {
+        defines += ["CONFIGURE_SCHEDULER_EDF_SMP"]
+      } else if (sched_priority_smp) {
+        defines += ["CONFIGURE_SCHEDULER_PRIORITY_SMP"]
+      } else if (sched_prority_affinity_smp) {
+        defines += ["CONFIGURE_SCHEDULER_PRIORITY_AFFINITY_SMP"]
+      } else if (sched_simple_smp) {
+        defines += ["CONFIGURE_SCHEDULER_SIMPLE_SMP"]
+      } else if (sched_strong_apa_smp) {
+        defines += ["CONFIGURE_SCHEDULER_STRONG_APA"]
+      }
+    } else {
+      if (sched_edf_smp || 
+          sched_priority_smp ||
+          sched_prority_affinity_smp ||
+          sched_simple_smp ||
+          sched_strong_apa_smp) {
+        assert(false, "scheduler conflict!")
+      }
+    }
+  }
+}
+
+config("rtems_classic") {
+  defines = []
+  if (max_tasks > 0) {
+    defines += ["CONFIGURE_MAXIMUM_TASKS=$max_tasks"]
+  }
+  if (max_timers > 0) {
+    defines += ["CONFIGURE_MAXIMUM_TIMERS=$max_timers"]
+  }
+  if (max_semaphores > 0) {
+    defines += ["CONFIGURE_MAXIMUM_SEMAPHORES=$max_semaphores"]
+  }
+  if (max_message_queues > 0) {
+    defines += ["CONFIGURE_MAXIMUM_MESSAGE_QUEUES=$max_message_queues"]
+  }
+  if (max_partitions > 0) {
+    defines += ["CONFIGURE_MAXIMUM_PARTITIONS=$max_partitions"]
+  }
+  if (max_regions > 0) {
+    defines += ["CONFIGURE_MAXIMUM_REGIONS=$max_regions"]
+  }
+  if (max_ports > 0) {
+    defines += ["CONFIGURE_MAXIMUM_PORTS=$max_ports"]
+  }
+  if (max_periods > 0) {
+    defines += ["CONFIGURE_MAXIMUM_PERIODS=$max_periods"]
+  }
+  if (max_barriers > 0) {
+    defines += ["CONFIGURE_MAXIMUM_BARRIERS=$max_barriers"]
+  }
+  if (max_user_extensions > 0) {
+    defines += ["CONFIGURE_MAXIMUM_USER_EXTENSIONS=$max_user_extensions"]
+  }
+  if (max_posix_keys > 0) {
+    defines += ["CONFIGURE_MAXIMUM_POSIX_KEYS=$max_posix_keys"]
+  }
+}
+
+config("rtems_posix") {
+  defines = []
+  if (max_posix_key_value_pairs > 0) {
+    defines += ["CONFIGURE_MAXIMUM_POSIX_KEY_VALUE_PAIRS=$max_posix_key_value_pairs"]
+  }
+  if (max_posix_message_queues > 0) {
+    defines += ["CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES=$max_posix_message_queues"]
+  }
+  if (max_posix_queue_signals > 0) {
+    defines += ["CONFIGURE_MAXIMUM_POSIX_QUEUED_SIGNALS=$max_posix_queue_signals"]
+  }
+  if (max_posix_semaphores > 0) {
+    defines += ["CONFIGURE_MAXIMUM_POSIX_SEMAPHORES=$max_posix_semaphores"]
+  }
+  if (max_posix_shms > 0) {
+    defines += ["CONFIGURE_MAXIMUM_POSIX_SHMS=$max_posix_shms"]
+  }
+  if (max_posix_threads > 0) {
+    defines += ["CONFIGURE_MAXIMUM_POSIX_THREADS=$max_posix_threads"]
+  }
+  if (max_posix_timers > 0) {
+    defines += ["CONFIGURE_MAXIMUM_POSIX_TIMERS=$max_posix_timers"]
+  }
+}
+
+config("rtems_bdbuf") {
+  if (bdbuf_enable) {
+    defines = ["CONFIGURE_APPLICATION_NEEDS_LIBBLOCK"]
+    if (bdbuf_max_read_ahead_blks > 0) {
+      defines += ["CONFIGURE_BDBUF_MAX_READ_AHEAD_BLOCKS=$bdbuf_max_read_ahead_blks"]
+      if (bdbuf_max_read_ahead_blks > 0 && bdbuf_read_ahead_task_priority > 0) {
+        defines += ["CONFIGURE_BDBUF_READ_AHEAD_TASK_PRIORITY=$bdbuf_read_ahead_task_priority"]
+      }
+    }
+    if (bdbuf_max_write_blks > 0) {
+      defines += ["CONFIGURE_BDBUF_MAX_WRITE_BLOCKS=$bdbuf_max_write_blks"]
+    }
+    if (bdbuf_swapout_task_priority > 0) {
+      defines += ["CONFIGURE_SWAPOUT_TASK_PRIORITY=$bdbuf_swapout_task_priority"]
+    }
+    if (bdbuf_swapout_period > 0) {
+      defines += ["CONFIGURE_SWAPOUT_SWAP_PERIOD=$bdbuf_swapout_period"]
+    }
+    if (bdbuf_swapout_worker_tasks > 0) {
+      defines += ["CONFIGURE_SWAPOUT_WORKER_TASKS=$bdbuf_swapout_worker_tasks"]
+      if (bdbuf_swapout_worker_task_priority > 0) {
+        defines += ["CONFIGURE_SWAPOUT_WORKER_TASK_PRIORITY=$bdbuf_swapout_worker_task_priority"]
+      }
+    }
+    if (bdbuf_swapout_block_hold > 0) {
+      defines += ["CONFIGURE_SWAPOUT_BLOCK_HOLD=$bdbuf_swapout_block_hold"]
+    }
+    if (bdbuf_task_stack_size > 0) {
+      defines += ["CONFIGURE_BDBUF_TASK_STACK_SIZE=$bdbuf_task_stack_size"]
+    }
+    if (bdbuf_max_blksize > 0) {
+      defines += ["CONFIGURE_BDBUF_BUFFER_MAX_SIZE=$bdbuf_max_blksize"]
+    }
+    if (bdbuf_min_blksize > 0) {
+      defines += ["CONFIGURE_BDBUF_BUFFER_MIN_SIZE=$bdbuf_min_blksize"]
+    }
+    if (bdbuf_cache_size > 0) {
+      defines += ["CONFIGURE_BDBUF_CACHE_MEMORY_SIZE=$bdbuf_cache_size"]
+    }
+  }
+}
+
+config("rtems_filesystem") {
+  defines = []
+  if (max_fds > 0) {
+    defines += ["CONFIGURE_MAXIMUM_FILE_DESCRIPTORS=$max_fds"]
+  }
+  if (use_devfs_root && use_miniimfs_root) {
+    assert(false, "Can not enable miniimfs and devfs at the same time")
+  } else if (use_devfs_root) {
+    defines += ["CONFIGURE_USE_DEVFS_AS_BASE_FILESYSTEM"]
+  } else if (use_miniimfs_root) {
+    defines += ["CONFIGURE_USE_MINIIMFS_AS_BASE_FILESYSTEM"]
+  }
+  if (use_imfs) {
+    defines += ["CONFIGURE_FILESYSTEM_IMFS"]
+  }
+  if (use_dosfs) {
+    defines += ["CONFIGURE_FILESYSTEM_DOSFS"]
+  }
+  if (use_ftpfs) {
+    defines += ["CONFIGURE_FILESYSTEM_FTPFS"]
+  }
+  if (use_jffs2) {
+    defines += ["CONFIGURE_FILESYSTEM_JFFS2"]
+  }
+  if (use_net && use_nfs) {
+    defines += ["CONFIGURE_FILESYSTEM_NFS"]
+  }
+  if (use_rfs) {
+    defines += ["CONFIGURE_FILESYSTEM_RFS"]
+  }
+  if (use_tftpfs) {
+    defines += ["CONFIGURE_FILESYSTEM_TFTPFS"]
+  }
+}
+
+if (use_shell) {
+  if (!use_libbsd) {
+    declare_args() {
+      shell_ifconfig = false
+      shell_route = false
+      shell_netstats = false
+      shell_ping = false
+    }
+  }
+  declare_args() {
+    #Shell task stack size
+    shell_stack_size = 4096
+  }
+}
+
+config("rtems_shell") {
+  if (use_shell) {
+    if (use_libbsd) {
+      defines = ["CONFIG_SHELL_STACK_SIZE=32768"]
+    } else {
+      defines = ["CONFIG_SHELL_STACK_SIZE=$shell_stack_size"]
+    }
+    if (use_shell_script) {
+      defines += ["CONFIG_SHELL_SCRIPT_TEXT=\"${script_content}\""]
+    }
+    #Common commands that can be optional
+    if (shell_cd) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CD"]
+    }
+    if (shell_dir) {
+      defines += ["CONFIGURE_SHELL_COMMAND_DIR"]
+    }
+    if (shell_cmdls) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CMDLS"]
+    }
+    if (shell_cmdchown) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CMDCHOWN"]
+    }
+    if (shell_cmdchmod) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CMDCHMOD"]
+    } 
+    if (shell_joel) {
+      defines += ["CONFIGURE_SHELL_COMMAND_JOEL"]
+    }
+    if (shell_date) {
+      defines += ["CONFIGURE_SHELL_COMMAND_DATE"]
+    }
+    if (shell_echo) {
+      defines += ["CONFIGURE_SHELL_COMMAND_ECHO"]
+    } 
+    if (shell_edit) {
+      defines += ["CONFIGURE_SHELL_COMMAND_EDIT"]
+    }
+    if (shell_sleep) {
+      defines += ["CONFIGURE_SHELL_COMMAND_SLEEP"]
+    }
+    if (shell_id) {
+      defines += ["CONFIGURE_SHELL_COMMAND_ID"]
+    } 
+    if (shell_tty) {
+      defines += ["CONFIGURE_SHELL_COMMAND_TTY"]
+    }
+    if (shell_whoami) {
+      defines += ["CONFIGURE_SHELL_COMMAND_WHOAMI"]
+    }
+    if (shell_logoff) {
+      defines += ["CONFIGURE_SHELL_COMMAND_LOGOFF"]
+    } 
+    if (shell_setenv) {
+      defines += ["CONFIGURE_SHELL_COMMAND_SETENV"]
+    }
+    if (shell_getenv) {
+      defines += ["CONFIGURE_SHELL_COMMAND_GETENV"]
+    }
+    if (shell_unsetenv) {
+      defines += ["CONFIGURE_SHELL_COMMAND_UNSETENV"]
+    } 
+
+    # Memory printing/modification family commands
+    if (shell_mdump) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MDUMP"]
+    }
+    if (shell_wdump) {
+      defines += ["CONFIGURE_SHELL_COMMAND_WDUMP"]
+    }
+    if (shell_ldump) {
+      defines += ["CONFIGURE_SHELL_COMMAND_LDUMP"]
+    } 
+    if (shell_medit) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MEDIT"]
+    }
+    if (shell_mfill) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MFILL"]
+    }
+    if (shell_mmove) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MMOVE"]
+    } 
+
+    #File and directory commands
+    if (shell_cp) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CP"]
+    }
+    if (shell_pwd) {
+      defines += ["CONFIGURE_SHELL_COMMAND_PWD"]
+    }
+    if (shell_ls) {
+      defines += ["CONFIGURE_SHELL_COMMAND_LS"]
+    } 
+    if (shell_chdir) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CHDIR"]
+    }
+    if (shell_mkdir) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MKDIR"]
+    }
+    if (shell_rmdir) {
+      defines += ["CONFIGURE_SHELL_COMMAND_RMDIR"]
+    }
+    if (shell_chroot) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CHROOT"]
+    }
+    if (shell_chmod) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CHMOD"]
+    } 
+    if (shell_cat) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CAT"]
+    }
+    if (shell_mkrfs) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MKRFS"]
+    } 
+    if (shell_msdosfmt) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MSDOSFMT"]
+    }
+    if (shell_mv) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MV"]
+    }
+    if (shell_rm) {
+      defines += ["CONFIGURE_SHELL_COMMAND_RM"]
+    } 
+    if (shell_ln) {
+      defines += ["CONFIGURE_SHELL_COMMAND_LN"]
+    }
+    if (shell_mknod) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MKNOD"]
+    }
+    if (shell_umask) {
+      defines += ["CONFIGURE_SHELL_COMMAND_UMASK"]
+    }
+    if (shell_lsof) {
+      defines += ["CONFIGURE_SHELL_COMMAND_LSOF"]
+    }
+    if (shell_mount) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MOUNT"]
+    } 
+    if (shell_unmount) {
+      defines += ["CONFIGURE_SHELL_COMMAND_UNMOUNT"]
+    }
+    if (shell_blksync) {
+      defines += ["CONFIGURE_SHELL_COMMAND_BLKSYNC"]
+    } 
+    if (shell_blkstats) {
+      defines += ["CONFIGURE_SHELL_COMMAND_BLKSTATS"]
+    }
+    if (shell_fdisk) {
+      defines += ["CONFIGURE_SHELL_COMMAND_FDISK"]
+    } 
+    if (shell_dd) {
+      defines += ["CONFIGURE_SHELL_COMMAND_DD"]
+    }
+    if (shell_hexdump) {
+      defines += ["CONFIGURE_SHELL_COMMAND_HEXDUMP"]
+    } 
+    if (shell_debugrfs) {
+      defines += ["CONFIGURE_SHELL_COMMAND_DEBUGRFS"]
+    }
+    if (shell_df) {
+      defines += ["CONFIGURE_SHELL_COMMAND_DF"]
+    } 
+    if (shell_md5) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MD5"]
+    }
+
+    # RTEMS Related commands
+    if (shell_shutdown) {
+      defines += ["CONFIGURE_SHELL_COMMAND_SHUTDOWN"]
+    }
+    if (shell_cpuinfo) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CPUINFO"]
+    } 
+    if (shell_cpuuse) {
+      defines += ["CONFIGURE_SHELL_COMMAND_CPUUSE"]
+    }
+    if (shell_top) {
+      defines += ["CONFIGURE_SHELL_COMMAND_TOP"]
+    } 
+    if (shell_stackuse) {
+      defines += ["CONFIGURE_SHELL_COMMAND_STACKUSE"]
+    }
+    if (shell_perioduse) {
+      defines += ["CONFIGURE_SHELL_COMMAND_PERIODUSE"]
+    } 
+    if (shell_profreport) {
+      defines += ["CONFIGURE_SHELL_COMMAND_PROFREPORT"]
+    }
+    if (shell_wkspace_info) {
+      defines += ["CONFIGURE_SHELL_COMMAND_WKSPACE_INFO"]
+    }
+
+    # Malloc family commands
+    if (shell_malloc_info) {
+      defines += ["CONFIGURE_SHELL_COMMAND_MALLOC_INFO"]
+    }
+
+    # Tracing family commands
+    if (shell_rtrace) {
+      defines += ["CONFIGURE_SHELL_COMMAND_RTRACE"]
+    } 
+
+    # Hardware interrupt install information
+    if (shell_irq) {
+      defines += ["CONFIGURE_SHELL_COMMAND_IRQ"]
+    }
+
+    # Profiling report
+    if (shell_profreport) {
+      defines += ["CONFIGURE_SHELL_COMMAND_PROFREPORT"]
+    }
+
+    # Network related commands
+    if (!use_libbsd) {
+      if (shell_ifconfig) {
+        defines += ["CONFIGURE_SHELL_COMMAND_IFCONFIG"]
+      }
+      if (shell_route) {
+        defines += ["CONFIGURE_SHELL_COMMAND_ROUTE"]
+      } 
+      if (shell_netstats) {
+        defines += ["CONFIGURE_SHELL_COMMAND_NETSTATS"]
+      }
+      if (shell_ping) {
+        defines += ["CONFIGURE_SHELL_COMMAND_PING"]
+      }
+    }
+
+    # Miscanellous shell commands
+    if (shell_rtc) {
+      defines += ["CONFIGURE_SHELL_COMMAND_RTC"]
+    }
+    if (shell_spi) {
+      defines += ["CONFIGURE_SHELL_COMMAND_SPI"]
+    } 
+    if (shell_i2cdetect) {
+      defines += ["CONFIGURE_SHELL_COMMAND_I2CDETECT"]
+    }
+    if (shell_i2cget) {
+      defines += ["CONFIGURE_SHELL_COMMAND_I2CGET"]
+    } 
+    if (shell_i2cset) {
+      defines += ["CONFIGURE_SHELL_COMMAND_I2CSET"]
+    }
+    if (shell_reboot) {
+      defines += ["CONFIGURE_SHELL_COMMAND_REBOOT"]
+    }
+
+    # System related commands
+    if (use_rtl) {
+      defines += [
+        "CONFIGURE_SHELL_COMMAND_RAP",
+        "CONFIGURE_SHELL_COMMAND_RTL",
+      ]
+    }
+
+    # Libbsd commands
+    if (use_libbsd) {
+      if (shell_bsd_hostname) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_HOSTNAME"]
+      }
+      if (shell_bsd_arp) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_ARP"]
+      }
+      if (shell_bsd_ping) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_PING"]
+      }
+      if (shell_bsd_dhcpd) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_DHCPCD"]
+      }
+      if (shell_bsd_ifconfig) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_IFCONFIG"]
+      }
+      if (shell_bsd_netstat) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_NETSTAT"]
+      }
+      if (shell_bsd_vmstat) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_VMSTAT"]
+      }
+      if (shell_bsd_openssl) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_OPENSSL"]
+      }
+      if (shell_bsd_route) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_ROUTE"]
+      }
+      if (shell_bsd_tcpdump) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_TCPDUMP"]
+      }
+      if (shell_bsd_wlanstats) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_WLANSTATS"]
+      }
+      if (shell_bsd_wpa_supplicant) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_WPA_SUPPLICANT"]
+      }
+      if (shell_bsd_wpa_supplicant_fork) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_WPA_SUPPLICANT_FORK"]
+      }
+      if (shell_bsd_i2c) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_I2C"]
+      }
+      if (shell_bsd_nvmectrl) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_NVMECONTROL"]
+      }
+      if (shell_bsd_sysctl) {
+        defines += ["CONFIGURE_BSD_SHELL_COMMAND_SYSCTL"]
+      }
+    }
+  }
+}

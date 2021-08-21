@@ -1,0 +1,17 @@
+
+Build project(example):
+
+mkdir build
+cd build
+cmake -DRTEMS_BOARD=apollo3p  ..
+make
+
+
+运行LIBBSD的基本内存要求：
+
+1> 任务栈最少192KB(32KB * 6), LIBBSD会创建6个任务，每个栈空间为32KB
+2> 任务最大优先级要大于100(eg：127, 255)
+3> RTEMS_BSD_CONFIG_DOMAIN_PAGE_MBUFS_SIZE >= 128KB (对应的系统默认值为8MB)
+4> 系统Init任务栈最好为32KB，太小容易溢出。
+5> 任务用户扩展大于等于1
+6> 定时器大于等于1

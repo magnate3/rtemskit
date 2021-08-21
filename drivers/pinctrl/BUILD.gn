@@ -1,0 +1,17 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+#====================
+# Pin-Control Driver
+#====================
+component("pinctrl") {
+  sources = [
+    "pinctrl-uclass.c",
+    "pinctrl-generic.c",
+    "pinctrl-single.c"
+  ]
+  configs = ["//drivers:dm_of_configs"]
+}
+
+
+

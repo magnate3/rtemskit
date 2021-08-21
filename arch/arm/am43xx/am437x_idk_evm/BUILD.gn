@@ -1,0 +1,33 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//lib/featrues.gni")
+import("//arch/common.gni")
+
+#===============
+# am437x_idk_evm
+#===============
+component("board") {
+  deps = ["//arch/arm/lib"]
+  sources = [
+    "am43xx.c",
+    "clock.c",
+    "clock_am43xx.c"
+  ]
+  defines = [
+    "CONFIG_AM43XX"
+  ]
+  if (use_libbsd) {
+    deps += [
+      "bsd:drivers"
+    ]
+    defines += ["__rtems_libbsd__"]
+  }
+}
+
+#============
+# Drivers
+#============
+component("driver") {
+  sources = []
+}
+
+

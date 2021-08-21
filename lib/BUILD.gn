@@ -1,0 +1,59 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//lib/featrues.gni")
+
+#========================
+# Library Common 
+#========================
+component("lib") {
+  sources = [
+    "string.c",
+    "ctype.c",
+    "strto.c",
+    "div64.c",
+    "vsprintf.c",
+    "hexdump.c",
+    "observer.c",
+    "modinit.c",
+  ]
+  deps = [
+    ":drivers_dep",
+    ":linux",
+  ]
+  if (use_canopen) {
+    deps += ["//lib/canopen"]
+  }
+  if (use_gui) {
+    deps += ["//lib/gui"]
+  }
+  if (use_odrive) {
+    deps += ["//lib/odrive"]
+  }
+  if (use_shell) {
+    deps += ["//lib/shellcmds:shell"]
+  }
+}
+
+#========================
+# Driver depend
+#========================
+component("drivers_dep") {
+  sources = [
+    "fdt_support.c",
+    "fdtdec_common.c",
+    "fdtdec.c",
+    "of_live.c",
+  ]
+  configs = ["//drivers:dm_of_configs"]
+}
+
+#========================
+# Linux compatible
+#========================
+component("linux") {
+  sources = []
+  if (!use_libbsd) {
+    sources += ["linux/lnx_timer.c"]
+  } else {
+    sources += ["linux/linux_compat.c"]
+  }
+}

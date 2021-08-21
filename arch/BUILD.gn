@@ -1,0 +1,106 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//gn/utils/mkimage.gni")
+import("//gn/utils/genbin.gni")
+import("//arch/common.gni")
+
+#========================
+# Public ARCH setting
+#========================
+group("arch") {
+  deps = [
+    "${target_cpu}/${target_soc}/${target_board}:board",
+    "${target_cpu}/${target_soc}/${target_board}:driver"
+  ]
+}
+
+if (use_bin) {
+  format_elf("binary") {
+    format = "binary"
+    deps = ["//:kernel"]
+  }
+
+  if (use_uboot) {
+    make_image("image") {
+      loadaddr = uboot_loadaddr
+      if (uboot_entryaddr != -1) {
+        entryaddr = uboot_entryaddr
+      }
+      comp = "none"
+      arch = target_cpu
+      deps = [":binary"]
+    }
+  }
+}
+
+#========================
+# CPU Architecture flags
+#========================
+config("compiler_cpu_abi") {
+  cflags = []
+  ldflags = []
+  defines = []
+  
+  if (target_cpu == "arm") {
+    if (target_board == "realview_pbx_a9_qemu" ||
+        target_soc == "xilinx-zynq" ||
+        target_soc == "am43xx") {
+      cflags += [
+        "-march=armv7-a", 
+        "-mthumb", 
+        "-mfpu=neon", 
+        "-mfloat-abi=hard", 
+        "-mtune=cortex-a9"
+      ]
+    } else if (target_soc == "apollo3p") {
+      cflags += [
+        "-mthumb", 
+        "-mcpu=cortex-m4", 
+        "-mfpu=fpv4-sp-d16", 
+        "-mfloat-abi=hard"
+      ]
+    } else if (target_soc == "stm32h7") {
+      cflags += [
+        "-mthumb", 
+        "-mcpu=cortex-m7", 
+        "-mfpu=fpv5-d16", 
+        "-mfloat-abi=hard"
+      ]
+    } else {
+      assert(false, "Unsupported target board")
+    }
+  } else {
+    assert(false, "Unsupported CPU architecture")
+  }
+  asmflags = cflags
+  ldflags = cflags
+}
+
+#========================
+# Architecture definitons
+#========================
+config("arch_configs") {
+  defines = []
+  if (target_soc == "am43xx") {
+    defines += ["CONFIG_AM43XX"]
+  }
+}
+
+#===================================
+# Build pre-precess action
+#===================================
+group("preprocess") {
+  arch_path = rebase_path("//arch/$target_cpu")
+  dst_path = "${arch_path}/include/asm"
+  if (target_soc == "am43xx") {
+    src_path = "${dst_path}/arch-am33xx"
+  } else if (target_soc == "xilinx-zynq") {
+    src_path = "${arch_path}/${target_soc}/include/match"
+  } else {
+    assert(false, "Unsupported SoC!!")
+  }
+  input = [
+    "rm -rf $dst_path/arch",
+    "ln -s $src_path $dst_path/arch"
+  ]
+  exec_script("//tools/scripts/kcmd.py", input)
+}

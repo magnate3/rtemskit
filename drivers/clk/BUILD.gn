@@ -1,0 +1,30 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+#==============
+# Clock Driver
+#==============
+component("clk") {
+  deps = []
+  sources = [
+    "clk-uclass.c",
+    "clk_fixed_rate.c",
+    "clk_fixed_factor.c",
+    "clk.c",
+    "clk-divider.c",
+    "clk-mux.c",
+    "clk-gate.c",
+    "clk-fixed-factor.c",
+    "clk-composite.c"
+  ]
+  
+  if (target_soc == "xilinx-zynq") {
+    sources += ["clk_zynq.c"]
+  } else if (target_soc == "am43xx") {
+    deps += ["ti"]
+  }
+  configs = ["//drivers:dm_of_configs"]
+}
+
+
+

@@ -1,0 +1,9 @@
+source_set("cortex-m") {
+  sources = [
+    "cortexm-exception.c"
+  ]
+  include_dirs = [
+    "//board/common/cm_backtrace"
+  ] 
+}
+

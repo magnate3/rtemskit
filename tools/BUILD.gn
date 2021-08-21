@@ -1,0 +1,92 @@
+
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+_tool_prefix = "arm-rtems${rtems_version}-"
+_build_dir = rebase_path("$root_build_dir")
+
+if (rtems_bsp == "") {
+  _target_path = "$target_cpu/$target_soc/$target_board"
+} else {
+  _target_path = "$target_cpu/$rtems_bsp"
+}
+
+#====================
+# Help information
+#====================
+group("help") {
+  metadata = {
+    content = [
+
+    ]
+  }
+}
+
+#====================
+# GDB debug
+#====================
+group("gdbinit") {
+  gdbinit_path = "${_build_dir}/../arch/$_target_path/gdb.init"
+  metadata = {
+    content = []
+    content += [ 
+      "gdb: ",
+      "	${_tool_prefix}gdb -x $gdbinit_path ${_build_dir}/kernel.elf",
+      ".PHONY : gdb"
+    ]
+    content += [ 
+      "gdbserver: ",
+      "	sh " + "${_build_dir}/../arch/$_target_path/gdbserver.sh ${_build_dir}/kernel.elf",
+      ".PHONY : gdbserver"
+    ]
+    content += [ 
+      "a2l: ",
+      "	${_tool_prefix}addr2line -p -f -a \$(lr) -e ${_build_dir}/kernel.elf",
+      ".PHONY : a2l"
+    ]
+  }
+}
+
+#====================
+# User debug
+#====================
+group("info") {
+  metadata = {
+    content = []
+    content += [ 
+      "sysinit: ",
+      "	rtems-exeinfo -I ${_build_dir}/kernel.elf",
+      ".PHONY : sysinit"
+    ]
+    content += [ 
+      "objdump: ",
+      "	${_tool_prefix}objdump -S ${_build_dir}/kernel.elf > ${_build_dir}/kernel.S",
+      ".PHONY : objdump"
+    ]
+  }
+}
+
+#====================
+# Device Tree
+#====================
+group("dtb") {
+  if (use_devicetree) {
+    _board_path = "$root_build_dir/../arch/${target_cpu}"
+    dts_dir = rebase_path("${_board_path}/dts")
+    dtb_dir = _build_dir
+    dtc_tmp = "${target_board}.dts.tmp"
+    dtc_flags = "-i " + rebase_path("$root_build_dir/../include ") + 
+                "-i " + rebase_path("${_board_path}/dts ") 
+    cpp_flags = "-I" + rebase_path("$root_build_dir/../include ") + 
+                "-I" + rebase_path("${_board_path}/dts ") +
+                "-nostdinc -undef -D__DTS__ "
+    metadata = {
+      content = [ 
+        "dtb: ",
+        "	cpp ${cpp_flags} -x assembler-with-cpp -o ${dtb_dir}/${dtc_tmp} ${dts_dir}/${target_board}.dts",
+        "	dtc ${dtc_flags} -I dts -O dtb -o ${dtb_dir}/${target_board}.dtb ${dtb_dir}/${dtc_tmp}",
+        ".PHONY : dtb"
+      ]
+    }
+  }
+}

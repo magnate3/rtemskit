@@ -1,0 +1,55 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+
+#===================================
+# Global include directories
+#===================================
+config("include_dirs") {
+  include_dirs = [
+    "//arch/${target_cpu}/include",
+    "//include",
+   ]
+}
+
+#===================================
+# Top-level project target
+#===================================
+group("project") {
+  deps = [
+    "//arch:preprocess",
+    ":kernel"
+  ]
+  if (use_bin) {
+    deps += ["//arch:binary"]
+  }
+  if (use_uboot) {
+    deps += ["//arch:image"]
+  }
+}
+
+#===================================
+# Generate executable kernel target
+#===================================
+executable("kernel") {
+  deps = [
+    "//init",
+    "//lib",
+    "//arch",
+    "//drivers"
+  ]
+}
+
+#===================================
+# User commands
+#===================================
+generated_file("tools") {
+  outputs = ["$root_build_dir/Makefile"]
+  data_keys = ["content"]
+  deps = [
+    "//tools:help",
+    "//tools:gdbinit",
+    "//tools:info",
+    "//tools:dtb"
+  ]
+}

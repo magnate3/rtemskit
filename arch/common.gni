@@ -1,0 +1,13 @@
+#Target board
+declare_args() {
+  target_board = ""
+  target_soc = ""
+}
+
+if (use_uboot) {
+  declare_args() {
+    uboot_loadaddr = -1
+    uboot_entryaddr = -1
+    uboot_comp = "none"
+  }
+}

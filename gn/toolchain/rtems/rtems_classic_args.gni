@@ -1,0 +1,15 @@
+#RTEMS classic
+declare_args() {
+  max_tasks = 4
+  max_timers = 0
+  max_semaphores = 0
+  max_message_queues = 0
+  max_partitions = 0
+  max_regions = 0
+  max_ports = 0
+  max_periods = 0
+  max_barriers = 0
+  max_user_extensions = 0
+
+  max_posix_keys = 3
+}

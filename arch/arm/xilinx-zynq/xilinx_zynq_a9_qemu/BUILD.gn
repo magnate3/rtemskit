@@ -1,0 +1,23 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//lib/featrues.gni")
+import("//arch/common.gni")
+
+#=====================
+# xilinx_zynq_a9_qemu
+#=====================
+component("board") {
+  sources = [
+    "zynq_dtb.c",
+    "../slcr.c",
+  ]
+}
+
+#=====================
+# Drivers
+#=====================
+component("driver") {
+  sources = []
+}
+
+
+

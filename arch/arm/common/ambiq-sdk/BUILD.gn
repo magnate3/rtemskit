@@ -1,0 +1,55 @@
+import("//board/board.gni")
+
+component("apollo") {
+  sources = [
+    "mcu/${target_soc}/hal/am_hal_adc.c",
+    "mcu/${target_soc}/hal/am_hal_ble.c",
+    "mcu/${target_soc}/hal/am_hal_ble_patch_b0.c",
+    "mcu/${target_soc}/hal/am_hal_burst.c",
+    "mcu/${target_soc}/hal/am_hal_cachectrl.c",
+    "mcu/${target_soc}/hal/am_hal_clkgen.c",
+    "mcu/${target_soc}/hal/am_hal_cmdq.c",
+    "mcu/${target_soc}/hal/am_hal_ctimer.c",
+    "mcu/${target_soc}/hal/am_hal_debug.c",
+    "mcu/${target_soc}/hal/am_hal_flash.c",
+    "mcu/${target_soc}/hal/am_hal_global.c",
+    "mcu/${target_soc}/hal/am_hal_gpio.c",
+    "mcu/${target_soc}/hal/am_hal_interrupt.c",
+    "mcu/${target_soc}/hal/am_hal_iom.c",
+    "mcu/${target_soc}/hal/am_hal_ios.c",
+    "mcu/${target_soc}/hal/am_hal_itm.c",
+    "mcu/${target_soc}/hal/am_hal_mcuctrl.c",
+    "mcu/${target_soc}/hal/am_hal_mspi.c",
+    "mcu/${target_soc}/hal/am_hal_pdm.c",
+    "mcu/${target_soc}/hal/am_hal_pwrctrl.c",
+    "mcu/${target_soc}/hal/am_hal_queue.c",
+    "mcu/${target_soc}/hal/am_hal_reset.c",
+    "mcu/${target_soc}/hal/am_hal_rtc.c",
+    "mcu/${target_soc}/hal/am_hal_scard.c",
+    "mcu/${target_soc}/hal/am_hal_secure_ota.c",
+    "mcu/${target_soc}/hal/am_hal_security.c",
+    "mcu/${target_soc}/hal/am_hal_stimer.c",
+    "mcu/${target_soc}/hal/am_hal_sysctrl.c",
+    "mcu/${target_soc}/hal/am_hal_systick.c",
+    "mcu/${target_soc}/hal/am_hal_tpiu.c",
+    "mcu/${target_soc}/hal/am_hal_uart.c",
+    "mcu/${target_soc}/hal/am_hal_wdt.c",
+    "utils/am_util_delay.c"
+  ]
+  cflags = ["-Og"]
+  defines = ["AM_HAL_DISABLE_API_VALIDATION"]
+  configs = [":apollo_includes"]
+}
+
+config("apollo_includes") {
+  include_dirs = [
+    "CMSIS/AmbiqMicro/Include",
+    "CMSIS/ARM/Include",
+    "mcu/${target_soc}",
+    "mcu/${target_soc}/hal",
+    "mcu/${target_soc}/reg",
+    "utils"
+  ]
+  defines = ["AM_PACKAGE_BGA"]
+}
+

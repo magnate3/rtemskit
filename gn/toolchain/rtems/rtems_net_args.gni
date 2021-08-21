@@ -1,0 +1,9 @@
+# Local network
+import("//gn/toolchain/rtems/rtems.gni")
+
+if (use_net) {
+  declare_args() {
+    use_ftp = false
+    use_telnet = false
+  }
+}

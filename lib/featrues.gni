@@ -1,0 +1,8 @@
+#Library
+
+declare_args() {
+  use_canopen = false
+  use_ethercat = false
+  use_gui = false
+  use_odrive = false
+}

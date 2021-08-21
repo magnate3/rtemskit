@@ -1,0 +1,4 @@
+#! joel -t JOEL -p 10 -s 8192 -v
+
+mkdir /home
+mount -t dosfs /dev/fdisk1 /home

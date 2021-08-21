@@ -1,0 +1,436 @@
+#ifndef RTEMS_DEFCONFIG_H_
+#define RTEMS_DEFCONFIG_H_
+
+#include "base/macro.h"
+
+/* 
+ * Build time and fireware version 
+ */
+#cmakedefine BUILD_TIMESTAMP "@BUILD_TIMESTAMP@"
+#cmakedefine FIREWARE_VERSION_MAJOR @FIREWARE_VERSION_MAJOR@
+#cmakedefine FIREWARE_VERSION_MINOR @FIREWARE_VERSION_MINOR@
+
+/*
+ * GUIX memory po0l
+ */
+#define CONFIG_GUIX_MEMPOOL_SIZE KB(16)
+
+
+
+
+/*
+ * Target configuration
+ */
+#define CONFIG_TIMER_SERVER  0
+#define CONFIG_TIMER_SERVER_PRIORITY 5
+#define CONFIG_IRQ_SERVER    0
+#define CONFIG_IRQ_SERVER_PRIORITY   4
+
+#define CONFIG_RAMDISK 1
+#define CONFIG_RAMDISK_MOUNT_POINT "/home/rda"
+#define CONFIG_RAMDISK_NAME "/dev/ramdisk0"
+#define CONFIG_RAMDISK_SIZE    MB(1)
+#define CONFIG_RAMDISK_BLKSIZE 512
+
+#define CONFIG_FLASHDISK 1 
+#define CONFIG_FLASHDISK_MOUNT_POINT "/home/fda"
+#define CONFIG_FLASHDISK_NAME "/dev/flash0"
+
+
+
+/**
+ * Basic system configuration
+ */
+#define CONFIGURE_INIT
+#define CONFIGURE_MAXIMUM_PROCESSORS 1
+#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
+#define CONFIGURE_BSP_STACK_ALLOCATOR
+
+
+/* Workspace size */
+#define CONFIGURE_EXECUTIVE_RAM_SIZE KB(512)
+
+/* Maximum user extension */
+#define CONFIGURE_MAXIMUM_USER_EXTENSIONS 8
+
+/** The configures the number of microseconds per clock tick. */
+#ifdef CONFIG_ETHERCAT_MASTER
+#define CONFIGURE_MICROSECONDS_PER_TICK      100
+#else
+#define CONFIGURE_MICROSECONDS_PER_TICK      1000
+#endif /* CONFIG_ETHERCAT_MASTER */
+
+/** The configures the number of clock ticks per timeslice. */
+#define CONFIGURE_TICKS_PER_TIMESLICE        50
+
+/**
+ * @defgroup ConfigurationInitTasksTable Initialization Tasks Configuration
+ *
+ * @addtogroup Configuration
+ *
+ * This group contains the elements needed to define the Classic API
+ * Initialization Tasks Table.
+ *
+ * Default User Initialization Task Table.  This table guarantees that
+ * one user initialization table is defined.
+ *
+ *  WHEN CONFIGURE_HAS_OWN_INIT_TASK_TABLE is defined, the user is
+ *  responsible for defining their own table information and setting the
+ *  appropriate variables.
+ */
+#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
+//#define CONFIGURE_POSIX_INIT_THREAD_TABLE
+
+/**
+ * When using the default Classic API Initialization Tasks Table, this is
+ * used to specify the stack size of the single Classic API task.
+ */
+#ifdef CONFIG_LIBBSD
+#define CONFIGURE_INIT_TASK_STACK_SIZE    KB(8)
+#else
+#define CONFIGURE_INIT_TASK_STACK_SIZE    KB(4)
+#endif
+
+/**
+ * When using the default Classic API Initialization Tasks Table, this is
+ * used to specify the priority of the single Classic API task.
+ */
+#define CONFIGURE_INIT_TASK_PRIORITY      1
+
+/**
+ * When using the default Classic API Initialization Tasks Table, this is
+ * used to specify the attributes size of the single Classic API task.
+ */
+//#define CONFIGURE_INIT_TASK_ATTRIBUTES
+
+/**
+ * By default, use the minimum stack size requested by this port.
+ */
+#define CONFIGURE_MINIMUM_TASK_STACK_SIZE KB(4) 
+
+/**
+ * This specifies the default POSIX thread stack size. By default, it is
+ * twice that recommended for the port.
+ */
+#define CONFIGURE_MINIMUM_POSIX_THREAD_STACK_SIZE KB(4) 
+
+/**
+ * @brief Idle task stack size configuration.
+ *
+ * By default, the IDLE task will have a stack of minimum size.
+ * The BSP or application may override this value.
+ */
+#define CONFIGURE_IDLE_TASK_STACK_SIZE CONFIGURE_MINIMUM_TASK_STACK_SIZE
+
+/*
+ * Interrupt stack configuration.
+ *
+ * By default, the interrupt stack will be of minimum size.
+ * The BSP or application may override this value.
+ */
+#define CONFIGURE_INTERRUPT_STACK_SIZE KB(4)
+
+/** This configures the maximum number of Classic API tasks. */
+#define CONFIGURE_MAXIMUM_TASKS               40
+
+/** This specifies the maximum number of Classic API timers. */
+#define CONFIGURE_MAXIMUM_TIMERS              rtems_resource_unlimited(30)
+
+/** This specifies the maximum number of Classic API semaphores. */
+#define CONFIGURE_MAXIMUM_SEMAPHORES          20
+
+/**
+* This configuration parameter specifies the maximum number of
+* Classic API Message Queues.
+*/
+#define CONFIGURE_MAXIMUM_MESSAGE_QUEUES      5
+
+/**
+* This configuration parameter specifies the maximum number of
+* Classic API Partitions.
+*/
+#define CONFIGURE_MAXIMUM_PARTITIONS          5
+
+/**
+* This configuration parameter specifies the maximum number of
+* Classic API Regions.
+*/
+#define CONFIGURE_MAXIMUM_REGIONS          5
+
+/**
+* This configuration parameter specifies the maximum number of
+* Classic API Dual-Ported Memory Ports.
+*/
+#define CONFIGURE_MAXIMUM_PORTS            0
+
+/**
+* This configuration parameter specifies the maximum number of
+* Classic API Rate Monotonic Periods.
+*/
+#define CONFIGURE_MAXIMUM_PERIODS          0
+
+/**
+ * This configuration parameter specifies the maximum number of
+ * Classic API Barriers.
+ */
+#define CONFIGURE_MAXIMUM_BARRIERS         0
+
+/**
+ * This configuration parameter specifies the maximum number of
+ * POSIX API keys.
+ *
+ * POSIX Keys are available whether or not the POSIX API is enabled.
+ */
+#define CONFIGURE_MAXIMUM_POSIX_KEYS       5
+
+/**
+ * This macro defines the number of POSIX file descriptors allocated
+ * and managed by libio.  These are the "integer" file descriptors that
+ * are used by calls like open(2) and read(2).
+ */
+#define CONFIGURE_MAXIMUM_FILE_DESCRIPTORS 32
+
+/**
+ *  @defgroup ConfigFilesystems Filesystems and Mount Table Configuration
+ *
+ *  @ingroup Configuration
+ *
+ *  Defines to control the file system:
+ *
+ *   - CONFIGURE_APPLICATION_DISABLE_FILESYSTEM:
+ *     Disable the RTEMS filesystems. You get an empty DEVFS.
+ *
+ *   - CONFIGURE_USE_DEVFS_AS_BASE_FILESYSTEM:
+ *     Use the DEVFS as the root file system. Limited functions are
+ *     provided when this is used.
+ *
+ *   - CONFIGURE_FILESYSTEM_ALL:
+ *     Add file filesystems to the default filesystem table.
+ *
+ *   List of available file systems. You can define as many as you like:
+ *     - CONFIGURE_FILESYSTEM_IMFS   - In Memory File System (IMFS)
+ *     - CONFIGURE_FILESYSTEM_DEVFS  - Device File System (DSVFS)
+ *     - CONFIGURE_FILESYSTEM_TFTPFS - TFTP File System, networking enabled
+ *     - CONFIGURE_FILESYSTEM_FTPFS  - FTP File System, networking enabled
+ *     - CONFIGURE_FILESYSTEM_NFS    - Network File System, networking enabled
+ *     - CONFIGURE_FILESYSTEM_DOSFS  - DOS File System, uses libblock
+ *     - CONFIGURE_FILESYSTEM_RFS    - RTEMS File System (RFS), uses libblock
+ *     - CONFIGURE_FILESYSTEM_JFFS2  - Journalling Flash File System, Version 2
+ *     - CONFIGURE_FILESYSTEM_ALL    - Enable all filesystem
+ *
+ *   Combinations:
+ *
+ *    - If nothing is defined the base file system is the IMFS.
+ *
+ *    - If CONFIGURE_APPLICATION_DISABLE_FILESYSTEM is defined all filesystems
+ *      are disabled by force.
+ *
+ *    - If CONFIGURE_USE_DEVFS_AS_BASE_FILESYSTEM is defined all filesystems
+ *      are disabled by force and DEVFS is defined.
+ */
+#define CONFIGURE_FILESYSTEM_IMFS
+#define CONFIGURE_FILESYSTEM_DOSFS
+
+
+/**
+ * This specifies the number of bytes per block for files within the IMFS.
+ * There are a maximum number of blocks per file so this dictates the maximum
+ * size of a file.  This has to be balanced with the unused portion of each
+ * block that might be wasted.
+ */
+//#define CONFIGURE_IMFS_MEMFILE_BYTES_PER_BLOCK 128
+
+
+
+/**
+ * @brief Maximum priority configuration.
+ *
+ * This configures the maximum priority value that
+ * a task may have.
+ *
+ * The following applies to the data space requirements
+ * of the Priority Scheduler.
+ *
+ * By reducing the number of priorities in a system,
+ * the amount of RAM required by RTEMS can be significantly
+ * reduced.  RTEMS allocates a Chain_Control structure per
+ * priority and this structure contains 3 pointers.  So
+ * the default is (256 * 12) = 3K on 32-bit architectures.
+ *
+ * This must be one less than a power of 2 between
+ * 4 and 256.  Valid values along with the application
+ * priority levels and memory saved when pointers are
+ * 32-bits in size are:
+ *
+ *   + 3,  2 application priorities, 3024 bytes saved
+ *   + 7, 5 application priorities, 2976 bytes saved
+ *   + 15, 13 application priorities, 2880 bytes saved
+ *   + 31, 29 application priorities, 2688 bytes saved
+ *   + 63, 61 application priorities, 2304 bytes saved
+ *   + 127, 125 application priorities, 1536 bytes saved
+ *   + 255, 253 application priorities, 0 bytes saved
+ *
+ * It is specified in terms of Classic API priority values.
+ */
+#define CONFIGURE_MAXIMUM_PRIORITY 127
+
+/**
+ *  @defgroup ConfigScheduler Scheduler configuration
+ *
+ *  @ingroup Configuration
+ *
+ * The scheduler configuration allows an application to select the
+ * scheduling policy to use.  The supported configurations are:
+ *
+ *  - CONFIGURE_SCHEDULER_PRIORITY - Deterministic Priority Scheduler
+ *  - CONFIGURE_SCHEDULER_PRIORITY_SMP - Deterministic Priority SMP Scheduler
+ *  - CONFIGURE_SCHEDULER_PRIORITY_AFFINITY_SMP - Deterministic
+ *    Priority SMP Affinity Scheduler
+ *  - CONFIGURE_SCHEDULER_STRONG_APA - Strong APA Scheduler
+ *  - CONFIGURE_SCHEDULER_SIMPLE - Light-weight Priority Scheduler
+ *  - CONFIGURE_SCHEDULER_SIMPLE_SMP - Simple SMP Priority Scheduler
+ *  - CONFIGURE_SCHEDULER_EDF - EDF Scheduler
+ *  - CONFIGURE_SCHEDULER_EDF_SMP - EDF SMP Scheduler
+ *  - CONFIGURE_SCHEDULER_CBS - CBS Scheduler
+ *  - CONFIGURE_SCHEDULER_USER  - user provided scheduler
+ *
+ * If no configuration is specified by the application in a uniprocessor
+ * configuration, then CONFIGURE_SCHEDULER_PRIORITY is the default.
+ *
+ * If no configuration is specified by the application in SMP
+ * configuration, then CONFIGURE_SCHEDULER_PRIORITY_SMP is the default.
+ *
+ * An application can define its own scheduling policy by defining
+ * CONFIGURE_SCHEDULER_USER and the following:
+ *
+ *    - CONFIGURE_SCHEDULER
+ *    - CONFIGURE_SCHEDULER_TABLE_ENTRIES
+ *    - CONFIGURE_SCHEDULER_USER_PER_THREAD
+ */
+#define CONFIGURE_SCHEDULER_PRIORITY
+
+/**
+* By default, RTEMS uses separate heaps for the RTEMS Workspace and
+* the C Program Heap.  The application can choose optionally to combine
+* these to provide one larger memory pool. This is particularly
+* useful in combination with the unlimited objects configuration.
+*
+*  #ifdef CONFIGURE_UNIFIED_WORK_AREAS
+*    Heap_Control  *RTEMS_Malloc_Heap = &_Workspace_Area;
+*  #else
+*    Heap_Control   RTEMS_Malloc_Area;
+*    Heap_Control  *RTEMS_Malloc_Heap = &RTEMS_Malloc_Area;
+*  #endif
+*/  
+//#define CONFIGURE_UNIFIED_WORK_AREAS
+
+/**
+* This configures the sbrk() support for the malloc family.
+* By default it is assumed that the BSP provides all available
+* RAM to the malloc family implementation so sbrk()'ing to get
+* more memory would always fail anyway.
+
+*  const rtems_heap_extend_handler rtems_malloc_extend_handler =
+*    #ifdef CONFIGURE_MALLOC_BSP_SUPPORTS_SBRK
+*      rtems_heap_extend_via_sbrk;
+*    #else
+*      rtems_heap_null_extend;
+*   #endif
+*/
+//#define CONFIGURE_MALLOC_BSP_SUPPORTS_SBRK	
+
+/**
+ * @defgroup ConfigurationLibBlock Configuration of LIBBLOCK
+ *
+ * @addtogroup Configuration
+ *
+ * This module contains parameters related to the LIBBLOCK buffering
+ * and caching subsystem. It requires tasks to swap out data to be
+ * written to non-volatile storage.
+ */
+#define CONFIGURE_APPLICATION_NEEDS_LIBBLOCK
+
+ #define   CONFIGURE_BDBUF_MAX_READ_AHEAD_BLOCKS  0
+ #define   CONFIGURE_BDBUF_MAX_WRITE_BLOCKS 16
+ #define   CONFIGURE_SWAPOUT_TASK_PRIORITY 10
+ #define   CONFIGURE_SWAPOUT_SWAP_PERIOD 5000
+ #define   CONFIGURE_SWAPOUT_WORKER_TASK_PRIORITY 10
+ #define   CONFIGURE_BDBUF_TASK_STACK_SIZE (8 * 1024)
+ #define   CONFIGURE_BDBUF_CACHE_MEMORY_SIZE (64 * 1024)
+ #define   CONFIGURE_BDBUF_BUFFER_MIN_SIZE 4096
+ #define   CONFIGURE_BDBUF_BUFFER_MAX_SIZE 4096
+
+
+/**
+ * This is specified to configure the  POSIX named pipes and POSIX FIFOs.
+ */
+//#define CONFIGURE_IMFS_ENABLE_MKFIFO
+
+/**
+ * This configuration parameter specifies the maximum number of
+ * POSIX API threads.
+ */
+#define CONFIGURE_MAXIMUM_POSIX_THREADS 10
+
+/**
+ * This configuration parameter specifies the maximum number of
+ * POSIX API message queues.
+ */
+#define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES 3
+
+/**
+ * This configuration parameter specifies the maximum number of
+ * POSIX API semaphores.
+ */
+#define CONFIGURE_MAXIMUM_POSIX_SEMAPHORES 10
+
+/**
+ * Configure the maximum number of POSIX shared memory objects.
+ */
+#define CONFIGURE_MAXIMUM_POSIX_SHMS 0
+
+/**
+ * This configuration parameter specifies the maximum number of
+ * POSIX API timers.
+ */
+#define CONFIGURE_MAXIMUM_POSIX_TIMERS 5
+
+/**
+ * This configuration parameter specifies the maximum number of
+ * POSIX API queued signals.
+ */
+#define CONFIGURE_MAXIMUM_POSIX_QUEUED_SIGNALS 8
+
+/**
+ * This configuration parameter specifies the stack size of the
+ * POSIX API Initialization thread (if used).
+ */
+#define CONFIGURE_POSIX_INIT_THREAD_STACK_SIZE    (4 * 1024)
+
+/*
+ *  Calculate the RAM size based on the maximum number of objects configured.
+ */
+//#ifndef CONFIGURE_EXECUTIVE_RAM_SIZE
+
+/**
+ * This configures the stack checker user extension.
+ */
+//#define CONFIGURE_STACK_CHECKER_ENABLED
+
+
+
+/*
+ * Shell command
+ */
+#define CONFIGURE_SHELL_COMMANDS_ALL
+
+
+#ifdef __rtems_app__
+#ifdef CONFIGURE_BSP_STACK_ALLOCATOR
+#include <bsp/stackalloc.h>
+#endif //CONFIGURE_BSP_STACK_ALLOCATOR
+
+#include <rtems/confdefs.h>
+
+#endif //__rtems_app__
+#endif //RTEMS_DEFCONFIG_H_

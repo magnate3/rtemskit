@@ -1,0 +1,152 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//gn/toolchain/rtems/rtems_net_args.gni")
+import("//gn/toolchain/rtems/rtems_fs_args.gni")
+import("//gn/toolchain/rtems/rtems_shell_args.gni")
+import("//gn/toolchain/rtems/rtems_libdl_args.gni")
+import("//gn/toolchain/rtems/rtems_libbsd_args.gni")
+
+#=================================
+# System initialize cofniguration
+#=================================
+component("init") {
+  defines = []
+  ldflags = []
+  deps = []
+  libs = []
+  sources = ["main.c"]
+  configs = [
+    "//gn/toolchain/rtems/config:rtems_features",
+    "//gn/toolchain/rtems/config:rtems_filesystem",
+    "//gn/toolchain/rtems/config:rtems_classic",
+    "//gn/toolchain/rtems/config:rtems_scheduler",
+    "//gn/toolchain/rtems/config:rtems_posix",
+    "//gn/toolchain/rtems/config:rtems_bdbuf"
+  ]
+  if (use_stack_allocator) {
+    defines += ["CONFIGURE_BSP_STACK_ALLOCATOR"]
+  }
+  if (use_libbsd) {
+    assert(bsd_log_level == "alert" ||
+           bsd_log_level == "crit" ||
+           bsd_log_level == "debug" ||
+           bsd_log_level == "emerg" ||
+           bsd_log_level == "err" ||
+           bsd_log_level == "info" ||
+           bsd_log_level == "notice" ||
+           bsd_log_level == "warning", "Log level is invalid")
+    defines += [
+      "CONFIG_LIBBSD",
+      "RTEMS_BSD_CONFIG_INIT",
+      "RTEMS_BSD_CONFIG_BSP_CONFIG",
+      "RTEMS_BSD_CONFIG_DOMAIN_PAGE_MBUFS_SIZE=${page_mbufs_size}",
+      "CONFIG_LOG_LEVEL=\"${bsd_log_level}\""
+    ]
+
+    libs += ["bsd"]
+    if (use_bsdnet_ftpd) {
+      defines += ["RTEMS_BSD_CONFIG_SERVICE_FTPD"]
+      libs += ["ftpd"]
+    }
+    if (use_bsdnet_telnet) {
+      defines += ["RTEMS_BSD_CONFIG_SERVICE_TELNETD"]
+      libs += ["telnetd"]
+    }
+    if (use_bsdnet_pf_unix) {
+      defines += ["RTEMS_BSD_CONFIG_NET_PF_UNIX"]
+    }
+    if (use_bsdnet_ip4_mroute) {
+      defines += ["RTEMS_BSD_CONFIG_NET_IP_MROUTE"]
+    }
+    if (use_bsdnet_ip6_mroute) {
+      defines += ["RTEMS_BSD_CONFIG_NET_IP6_MROUTE"]
+    }
+    if (use_bsdnet_if_brige) {
+      defines += ["RTEMS_BSD_CONFIG_NET_IF_BRIDGE"]
+    }
+    if (use_bsdnet_if_lagg) {
+      defines += ["RTEMS_BSD_CONFIG_NET_IF_LAGG"]
+    }
+    if (use_bsdnet_if_vlan) {
+      defines += ["RTEMS_BSD_CONFIG_NET_IF_VLAN"]
+    }
+    if (use_bsdnet_ipsec) {
+      defines += ["RTEMS_BSD_CONFIG_IPSEC"]
+    }
+    if (use_bsdnet_firewall_pf) {
+      defines += ["RTEMS_BSD_CONFIG_FIREWALL_PF"]
+    }
+    if (use_bsdnet_firewall_pflog) {
+      defines += ["RTEMS_BSD_CONFIG_FIREWALL_PFLOG"]
+    }
+    if (use_bsdnet_firewall_pfsync) {
+      defines += ["RTEMS_BSD_CONFIG_FIREWALL_PFSYNC"]
+    }
+    if (use_bsd_termios_kq_and_poll) {
+      defines += ["RTEMS_BSD_CONFIG_TERMIOS_KQUEUE_AND_POLL"]
+    }
+    libs += ["bsd"]
+  }
+  if (use_verbose) {
+    defines += ["CONFIGURE_VERBOSE_SYSTEM_INITIALIZATION"]
+  }
+  if (use_devicetree) {
+    defines += ["CONFIGURE_FDT"]
+  }
+  if (use_media) {
+    defines += ["CONFIGURE_MEDIA_SERVICE"]
+  }
+
+  deps += [
+    ":shell",
+    ":termios"
+  ]
+  if (use_net) {
+    deps += [":net"]
+  }
+}
+
+#===============================
+# Shell commands configuration
+#===============================
+component("shell") {
+  if (use_shell) {
+    defines = []
+    sources = ["shell.c"]
+    configs = ["//gn/toolchain/rtems/config:rtems_shell"]
+    if (use_rtl) {
+      defines += [
+        "CONFIG_LIBDL",
+        "CONFIG_LIBDL_CONTENT=\"${libdl_conf_content}\""
+      ]
+    }
+  }
+}
+
+#===============================
+# Old net-stack configuration
+#===============================
+component("net") {
+  if (use_net) {
+    defines = []
+    sources = ["net0.c"]
+    if (use_ftp) {
+      defines += ["CONFIG_NET_FTP"]
+    }
+    if (use_telnet) {
+      defines += ["CONFIG_NET_TELNET"]
+    }
+    if (use_nfs) {
+      defines += ["CONFIG_NET_NFS"]
+    }      
+  }
+}
+
+#===============================
+# Termios buffer configuration
+#===============================
+component("termios") {
+  sources = ["termios.c"]
+  if (shell_xmodem) {
+    defines = ["CONFIG_TERMIOS_BUFSZ=2048"]
+  }
+}

@@ -1,0 +1,64 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//arch/common.gni")
+
+#=========
+# Drivers
+#=========
+component("drivers") {
+  sources = [
+    "core/lists.c",
+    "core/root.c",
+    "core/uclass.c",
+    "core/device-remove.c",
+    "core/device.c",
+    "core/devres.c",
+    "core/fdtaddr.c",
+    "core/ofnode.c",
+    "core/of_access.c",
+    "core/of_addr.c",
+    "core/of_extra.c",
+    "core/of_irq.c",
+    "core/read_extra.c",
+    "core/read.c",
+    "core/simple-bus.c",
+    "core/simple-pm-bus.c",
+    "core/syscon-uclass.c",
+    "core/regmap.c",
+    "core/util.c",
+    "core/dump.c",
+    "core/interrupt.c",
+    
+    "shell/dm_shell.c"
+  ]
+  deps = [
+    "//drivers/irqchip",
+    "//drivers/clk",
+    "//drivers/gpio",
+    "//drivers/serial",
+    "//drivers/pinctrl",
+    "//drivers/i2c",
+    "//drivers/spi",
+    "//drivers/reset",
+  ]
+  configs = [":dm_of_configs"]
+}
+
+config("dm_of_configs") {
+  configs = ["//arch:arch_configs"]
+  defines = [
+    "CONFIG_OF_LIBFDT=1",
+    "CONFIG_OF_CONTROL=1",
+    "CONFIG_OF_TRANSLATE=1",
+    "CONFIG_DEVRES=1",
+    "CONFIG_LOGLEVEL=7",
+  ]
+
+  # Devic driver
+  defines += [
+    "CONFIG_CLK=1",
+    "CONFIG_PINCTRL=1",
+    "CONFIG_PINCTRL_GENERIC=1",
+    "CONFIG_DM_RESET=1",
+  ]
+}
+

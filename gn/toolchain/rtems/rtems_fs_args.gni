@@ -1,0 +1,21 @@
+
+#File system
+import("//gn/toolchain/rtems/rtems.gni")
+
+declare_args() {
+  max_fds = 6
+  use_devfs_root = false
+  use_miniimfs_root = false
+  use_imfs = true
+  use_dosfs = false
+  use_jffs2 = false
+  use_rfs = false
+}
+
+if (use_net || use_libbsd) {
+  declare_args() {
+    use_nfs = false
+    use_tftpfs = false
+    use_ftpfs = false
+  }
+}

@@ -1,0 +1,14 @@
+import("//gn/toolchain/rtems/rtems.gni")
+import("//gn/toolchain/rtems/rtems_shell_args.gni")
+
+if (use_shell) {
+component("shell") {
+    sources = []
+    if (shell_clear) {
+      sources += ["shell_clear.c"]
+    }
+    if (shell_xmodem) {
+      sources += ["shell_xmodem.c"]
+    }
+  }
+}
