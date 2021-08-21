@@ -1,13 +1,67 @@
 
-Build project(example):
+RTEMS Demo项目
 
-mkdir build
-cd build
-cmake -DRTEMS_BOARD=apollo3p  ..
-make
+基于GN + Ninja 构建 （构建速度快， 语法简洁好用）
+GN 本身实现最基本的功能，尽可能保持语法简洁，同时实现了对python简单优雅的参数传递方式，
+Python 用于扩展用户定制功能 （插件架构）
+
+====================================
+目录结构：
+arch     : 板级相关
+    arch/BUILD.gn   compiler_cpu_abi目标定义了目标cpu相关的编译选项，当添加新的目标cpu时需要改动该文件
+
+drivers  : 外设驱动
+
+gn       : GN 相关的配置文件 （工具链设置， 用户配置参数， 默认编译选项等等）
+    gn/BUILDCONFIG.gn                          默认工具链配置文件（set_default_toolchain()）, 由根目录下的.gn文件指定
+    gn/toolchain/gcc_toolchain.gni             GNU工具链模板定义
+    gn/toolchain/gcc_link_wrapper.py           GNU链接器包装器定义（用于扩展链接器action, 例如：DL使能动态链接编辑器时，
+                                               使用内嵌符号表方式需要二次链接）。简而言之就是需要链接参数的post-build action就可以在这里面定义
+    gn/toolchain/rtems/BUILD.gn                RTEMS-GNU工具链定义（目前只定义了arm架构）
+    gn/toolchain/rtems/BUILD.gn                LINUX-GNU工具链定义
+    gn/toolchain/rtems/rtems_xxxxx_args.gni    RTEMS不同模块的配置参数定义
+    gn/toolchain/utils/genbin.gni              生成binary文件模板定义 （调用 tools/scripts/generate_bin.py 执行命令） 
+    gn/toolchain/utils/mkimage.gni             生成uboot启动镜像文件 （调用 tools/scripts/mkimage.py 执行命令）
+
+    1> gn 没有函数或宏的概念， 提供的唯一重用代码的方式就是模板（template）
+    2> gn 定义c/c++ 目标的方式有三种： source_set(), static_library(), shared_library(), 
+          目前项目中可以用component()模板（定义在gn/BUILDCONFIG.gn）来代替上述方式，更具灵活性。 
+       group() 可以理解为伪目标
+       executalbe() 可执行目标
+       config() 主要用于定义一些公共的配置，被其它目标（source_set(), static_library(), shared_library()，config()）依赖
+    3> gn help 命令即帮助文档（eg: gn help deps, 就会列出deps的用法）
+
+init     : 系统初始化
+lib      : 库
+patch    : rtems相关的代码更新以及相关的配置文件demo
+tools    : Python脚本对GN相关的功能扩展， 以及生成的部分基于makefile的帮助命令（eg: make dtb - 生成设备树）
+
+==================================
+当前可用的目标板:
+am437x-id-evm （自己用于测试）
+xilinx-zynq-a9-qemu (用于调试kernel 和 libbsd)
 
 
-运行LIBBSD的基本内存要求：
+编译Demo项目(eg: am437x-evm-idk, args.gn为项目配置文件)：
+
+1> cd {project-dir} 进入项目根目录
+2> mkdir out (构建目录)
+2> cp arch/arm/am43xx/am437x_idk_evm/args.gn out
+4> gn gen out
+5> ninja -C out
+
+gn args out --list [--short] (查看项目所有配置选项)
+gn args out (编辑配置参数)
+
+
+GN仓库: 
+    git clone https://gn.googlesource.com/gn.git
+文档：
+    gn/docs
+
+
+
+运行LIBBSD的基本要求：
 
 1> 任务栈最少192KB(32KB * 6), LIBBSD会创建6个任务，每个栈空间为32KB
 2> 任务最大优先级要大于100(eg：127, 255)
