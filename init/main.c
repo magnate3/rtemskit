@@ -28,7 +28,7 @@ struct dirlink {
     const char *linkname;
 };
 
-static const struct dirlink link_table[] = {
+static const struct dirlink symlink_table[] = {
     {ROOTFS_DIR"/etc", "/etc"},
     {ROOTFS_DIR"/lib", "/lib"},
 };
@@ -48,14 +48,14 @@ static rtems_status_code  media_listener(rtems_media_event event,
             return RTEMS_INCORRECT_STATE;
         }
 
-        for (int i = 0; i < RTEMS_ARRAY_SIZE(link_table); i++) {
+        for (int i = 0; i < RTEMS_ARRAY_SIZE(symlink_table); i++) {
             snprintf(linkname, sizeof(linkname), "%s/%s", 
-                dest, link_table[i].target);
-            printf("symlink: %s -> %s\n", link_table[i].linkname, linkname);
-            ret = symlink(linkname, link_table[i].linkname);
+                dest, symlink_table[i].target);
+            printf("symlink: %s -> %s\n", symlink_table[i].linkname, linkname);
+            ret = symlink(linkname, symlink_table[i].linkname);
             if (ret) {
-                printf("***Waring: create link failed(%s -> %s) with %d\n", 
-                    link_table[i].target, link_table[i].linkname, ret);
+                printf("***Waring: create symlink failed(%s -> %s) with %d\n", 
+                    symlink_table[i].target, symlink_table[i].linkname, ret);
             }
         }
         rtems_event_send(waiter, MEDIA_MOUNTED_EVENT);

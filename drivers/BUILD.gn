@@ -30,16 +30,7 @@ component("drivers") {
     
     "shell/dm_shell.c"
   ]
-  deps = [
-    "//drivers/irqchip",
-    "//drivers/clk",
-    "//drivers/gpio",
-    "//drivers/serial",
-    "//drivers/pinctrl",
-    "//drivers/i2c",
-    "//drivers/spi",
-    "//drivers/reset",
-  ]
+
   configs = [":dm_configs"]
 }
 
