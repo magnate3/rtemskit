@@ -15,9 +15,20 @@ component("board") {
 #=====================
 # Drivers
 #=====================
+#============
+# Drivers
+#============
 component("driver") {
-  sources = []
+  deps = [
+    "//drivers/irqchip",
+    "//drivers/clk",
+    "//drivers/gpio",
+    "//drivers/serial",
+    "//drivers/pinctrl",
+    "//drivers/i2c",
+    "//drivers/spi",
+    "//drivers/reset",
+  ]
 }
-
 
 

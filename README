@@ -38,8 +38,8 @@ tools    : Python脚本对GN相关的功能扩展， 以及生成的部分基于
 
 ==================================
 当前可用的目标板:
-am437x-id-evm （自己用于测试）
-xilinx-zynq-a9-qemu (用于调试kernel 和 libbsd)
+am437x-id-evm 
+xilinx-zynq-a9-qemu (用于调试)
 
 
 编译Demo项目(eg: am437x-evm-idk, args.gn为项目配置文件)：
