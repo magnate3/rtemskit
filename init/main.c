@@ -82,10 +82,6 @@ static int media_service_init(void) {
 }
 #endif
 
-/* 
- * RTEMS application entry.
- * @arg: user argument
- */
 rtems_task Init(rtems_task_argument arg) {
 #if defined(CONFIGURE_MEDIA_SERVICE)
     rtems_id thread = rtems_task_self();

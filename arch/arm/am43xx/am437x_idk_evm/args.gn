@@ -6,6 +6,8 @@ target_board = "am437x_idk_evm"
 rtems_tools = "/home/wt/development/rtems"
 rtems_version = 6
 
+optimize_level = "O2"
+
 max_cpus = 1
 sched_priority = true
 
